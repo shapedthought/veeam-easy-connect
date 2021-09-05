@@ -41,15 +41,3 @@ class VeeamEasyConnect():
         self.v11_token = self.v11_res_json.get('access_token')
         self.v11_token_headers['Authorization'] = 'Bearer ' + self.v11_token
         return self.v11_token_headers
-
-    def save_headers(self, headers: list[dict], name: str) -> None:
-        with open(name, "w") as headers_file:
-            json.dump(headers, headers_file)
-
-    
-    def load_headers(self, file_name: str) -> dict:
-        with open(file_name, "r") as headers_file:
-            json_data = json.load(file_name)
-        return json_data
-
-    
