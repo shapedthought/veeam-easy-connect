@@ -48,9 +48,7 @@ class VeeamEasyConnect():
 
     
     def load_headers(self, file_name: str) -> dict:
-        if ".json" in file_name:
-            file_name = file_name.split(".")[0]
-        with open(f"{file_name}.json", "r") as headers_file:
+        with open(file_name, "r") as headers_file:
             json_data = json.load(file_name)
         return json_data
 
