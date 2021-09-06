@@ -34,44 +34,29 @@ V11:
 
 Both of these will prompt you for log in each time you run the module. 
 
-You can then add these headers when you make API requests using the "Requests" library.
+If you want to save the headers so you can load and re-use them later, saving on th amount of 
+logins you do, I recommend doing the following. 
 
-    # Enterprise Manager Request
-    import Requests
+Create save and load functions:
 
-    url = "https://192.168.4.44:9398/api/backupServers"
-    
-    # headers added here
-    res = requests.get(url, headers=em_headers, verify=False) 
+    import json
+    def save_json(headers_file_name, headers_data):
+        with open(headers_file_name, "w") as headers_file:
+            json.dump(headers_data, headers_file)
 
-    print(res.status_code)
+    def read_json(headers_file_name):
+        with open(headers_file_name, "r") as headers_file:
+        headers = json.load(headers_file)
 
-    res_data = res.json()
+You can then call them like so:
 
-If you are not using a Jupyter which will cache the VeeamEasyConnect object including the headers or you want to create a Python script which also won't cache the headers between runs, you can do the following. 
+    # save
+    save_json("headers.json", headers_data)
 
-    veeam_ec.save_headers(em_headers, "em_headers_file")
+    # load
+    headers= read_json("headers.json")
 
-That will product a json file with the headers loaded. 
-
-You can then load the headers again, as long as it is within the valid time limit (15 min).
-
-        # Instantiate the class object
-
-        veeam_ec = VeeamEasyConnect
-
-        # Load Headers
-
-        v11_header = veeam_ec.load_headers("em_headers_file.json")
-
-        url = "https://192.168.4.44:9398/api/backupServers"
-
-        res = requests.get(url, headers=em_headers, verify=False) 
-
-        print(res.status_code)
-
-         res_data = res.json()
-
+You can then use those headers until the token runs out.
 ## Veeam API references
 
 [Enterprise Manager API](https://helpcenter.veeam.com/docs/backup/em_rest/overview.html?ver=110)
