@@ -26,7 +26,7 @@ Next you need to create an instance of the object with your username and passwor
 
     veeam_ec = VeeamEasyConnect(username, password)
 
-Now you can log login with Basic Auth or OAuth:
+Now you can login with Basic Auth or OAuth:
 
 Basic Auth (Enterprise Manager):
 
@@ -36,9 +36,11 @@ OAuth:
 
     veeam_ec.oauth(address)
 
-You only need to supply the address of the URL, not the full string e.g. "192.168.0.123", not "https://192.168.0.123:9398"
+You only need to supply the address of the URL, not the full string e.g. "192.168.0.123"
 
-You will note that there is no response from either of these, but you can get the json responses by calling:
+If Authorization was successful you will see an "OK" printed.
+
+You can get the json responses by calling:
 
     json_data = veeam_ec.get_json("basic") 
     json_data = veeam_ec.get_json("oauth")

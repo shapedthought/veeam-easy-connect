@@ -7,14 +7,16 @@ This script shows how you can use Veeam Easy Connect to get the Token from the A
 and then save it to a json file for future use.
 """
 
-username = "USERNAME"
+username = "YOUR_USERNAME"
 password = getpass.getpass("Enter password: ")
-url = "YOUR_ADDRESS"
+address = "YOUR_ADDRESS"
 
 vec = VeeamEasyConnect(username, password)
 
-vec.oauth_login(url)
+vec.oauth_login(address)
 
-print(vec.res_json_oauth)
+token_data = vec.get_json_data("oauth")
+
+print(token_data)
 
 vec.save_data("oauth", "tokendata")

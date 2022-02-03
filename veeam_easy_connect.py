@@ -18,6 +18,8 @@ class VeeamEasyConnect:
         self.b_auth = HTTPBasicAuth(self.username, self.password)
         self.response = requests.post(self.basic_url, headers=self.basic_headers, auth=self.b_auth, verify=False)
         self.response.raise_for_status()
+        if self.response.status_code == 200:
+            print("OK")
         self.res_json_basic = self.response.json()
 
 
@@ -36,6 +38,8 @@ class VeeamEasyConnect:
             }
         self.response = requests.post(self.oauth_url, data=self.oauth_data, headers=self.oauth_headers, verify=False)
         self.response.raise_for_status()
+        if self.response.status_code == 200:
+            print("OK")
         self.res_json_oauth = self.response.json()
 
 
