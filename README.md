@@ -1,8 +1,12 @@
 # Veeam Easy Connect
 
-Veeam Easy Connect is a Python module that makes it easier to get going with both the Veeam Enterprise Manager API as well as the newer V11 API.
+Veeam Easy Connect is a Python module that makes it easier to get going with both the Veeam APIs.
 
-The aim is to make a bit easier to connect to either API and get the access token so you can start making data requests.
+This module provides an easy way to get Authorized, and get the access token so you can get on with making useful requests.
+
+**Note**
+
+I have updated this module so make it more generic over all Veeam Products. This means breaking changes to the way it was shown in the YouTube series.
 
 ## Installation
 
@@ -18,45 +22,36 @@ Import the module via:
 
     from veeam_easy_connect import VeeamEasyConnect
 
-Next you need to create an instance of the object
+Next you need to create an instance of the object with your username and password.
 
-    veeam_ec = VeeamEasyConnect
+    veeam_ec = VeeamEasyConnect(username, password)
 
-Now you can log into either Enterprise Manager or V11 APIs
+Now you can log login with Basic Auth or OAuth:
 
-Enterprise Manager:
+Basic Auth (Enterprise Manager):
 
-    em_headers = veeam_ec.em_login()
+    veeam_ec.basic_auth(address)
 
-V11:
+OAuth:
 
-    v11_headers = veeam_ec.v11_login()
+    veeam_ec.oauth(address)
 
-Both of these will prompt you for log in each time you run the module. 
+You only need to supply the address of the URL, not the full string e.g. "192.168.0.123", not "https://192.168.0.123:9398"
 
-If you want to save the headers so you can load and re-use them later, saving on th amount of 
-logins you do, I recommend doing the following. 
+You will note that there is no response from either of these, but you can get the json responses by calling:
 
-Create save and load functions:
+    json_data = veeam_ec.get_json("basic") 
+    json_data = veeam_ec.get_json("oauth")
 
-    import json
-    def save_json(headers_file_name, headers_data):
-        with open(headers_file_name, "w") as headers_file:
-            json.dump(headers_data, headers_file)
+As you will likely need to save the token for later use a convenience method has been added:
 
-    def read_json(headers_file_name):
-        with open(headers_file_name, "r") as headers_file:
-        headers = json.load(headers_file)
+    veeam_ec.save_data("oauth", "tokendata")
 
-You can then call them like so:
+The first parameter is type of token data ("oauth" or "basic"), and the second is the name of the file you require. 
 
-    # save
-    save_json("headers.json", headers_data)
+The examples folder has a script showing authentication process and saving the token. There is also a script that
+shows how to then use the token in the saved json file.
 
-    # load
-    headers= read_json("headers.json")
-
-You can then use those headers until the token runs out.
 ## Veeam API references
 
 [Enterprise Manager API](https://helpcenter.veeam.com/docs/backup/em_rest/overview.html?ver=110)
