@@ -9,7 +9,7 @@ class VeeamEasyConnect:
         self.username = username
         self.password = password
     
-    def basic_auth(self, address: str) -> dict:
+    def basic_auth(self, address: str) -> None:
         self.basic_headers = {
              "accept": "application/json",
         }
@@ -23,7 +23,7 @@ class VeeamEasyConnect:
         self.res_json_basic = self.response.json()
 
 
-    def oauth_login(self, address: str) -> dict:
+    def oauth_login(self, address: str) -> None:
         self.oauth_headers = {
             "accept": "application/json",
             "x-api-version": "1.0-rev1", 
