@@ -12,9 +12,9 @@ def main():
     password = getpass.getpass("Enter password: ")
     address = "YOUR_ADDRESS"
 
-    vec = VeeamEasyConnect(username, password)
+    vec = VeeamEasyConnect(username, password, False) # insecure
 
-    vec.oauth_login(address, "aws") # 
+    vec.aws().login(address) # 
 
     vec.get_mfa_token() # This will print the mfa token
 

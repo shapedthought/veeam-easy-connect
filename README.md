@@ -48,35 +48,47 @@ Import the module via:
 Next you need to create an instance of the object with your username and password.
 
     username = "john@abc.com"
+
     password = "super_secret"
-    vec = VeeamEasyConnect(username, password)
+
+    vec = VeeamEasyConnect(username, password, True) # secure - checks SSL - bool is optional 
+
+    vec = VeeamEasyConnect(username, password, False) # insecure - if you are using Self-Signed Cert (not recommended)
 
 ## Password Authentication
 
-Basic Auth (Enterprise Manager):
+Next call the api type which is either: 
+* .ent_man() - enterprise manager 
+* .aws()
+* .azure()
+* .gcp()
+* .vbr()
+* .o365()
+
+You then chain with the .login() command with the address
 
     address = "192.168.0.123"
-    vec.basic_auth(address) 
-    token = vec.get_access_token("basic") # add basic as second argument, not needed for oauth
 
-OAuth:
+    vec.aws().login(address) 
 
-    address = "192.168.0.123"
-
-    # specify the API being used in second argument - "aws", "azure", "gcp", "o365", and "vbr"
-    vec.oauth(address, "aws")
     token = vec.get_access_token()
 
 ## MFA Authentication
 
-AWS and Azure only. This still is being tested, please create issue if you find a bug.
+AWS and Azure only. 
+
+This still is being tested, please create issue if you find a bug.
     
     vec = VeeamEasyConnect(username, password)
-    vec.oauth(address, "aws")
+
+    vec.aws().login(address) # or .azure()
+
     vec.get_mfa_token() # this will print the token to use with the MFA
 
     res_code = input("Enter code: ")
-    vec.mfa_login(res_code) # string
+
+    vec.mfa_login(res_code) # string, no need to set the api type again
+
     token = vec.get_access_token()
     or 
     token = vec.get_access_token_with_bearer() # adds the "Bearer " to the token
@@ -87,9 +99,9 @@ If Authorization was successful in all cases you will see an "OK" printed.
 
 As you will likely need to save the token for later use a convenience method has been added:
 
-    vec.save_data("oauth", "tokendata")
+    vec.save_data("tokendata")
 
-The first parameter is type of token data ("basic" or "oauth"), and the second is the name of the file (no extension needed). 
+Just add the name of the file you want, without an extension, VEC will do the rest.
 
 ## Examples
 

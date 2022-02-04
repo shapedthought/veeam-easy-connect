@@ -18,7 +18,7 @@ def main():
 
     vec = VeeamEasyConnect(username, password)
 
-    vec.oauth_login(address, "vbr")
+    vec.vbr().login(address)
 
     token = vec.get_access_token_with_bearer()
 

@@ -2,7 +2,7 @@ import getpass
 from veeam_easy_connect import VeeamEasyConnect
 
 """
-Basic Authorization Example (Enterprise Manager)
+Basic Authorization with Enterprise Manager
 This script shows how you can use Veeam Easy Connect to get the Token from the API 
 and then save it to a json file for future use.
 """
@@ -12,11 +12,11 @@ def main():
     password = getpass.getpass("Enter password: ")
     address = "YOUR_ADDRESS"
 
-    vec = VeeamEasyConnect(username, password)
+    vec = VeeamEasyConnect(username, password, False) # insecure
 
-    vec.basic_auth(address)
+    vec.ent_man().login(address)
 
-    token_data = vec.get_access_token("basic")
+    token_data = vec.get_access_token()
 
     print(token_data)
 

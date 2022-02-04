@@ -12,9 +12,9 @@ def main():
     password = getpass.getpass("Enter password: ")
     address = "YOUR_ADDRESS"
 
-    vec = VeeamEasyConnect(username, password)
+    vec = VeeamEasyConnect(username, password, False) # insecure
 
-    vec.oauth_login(address, "vbr")
+    vec.vbr().login(address)
 
     token_data = vec.get_access_token()
 
