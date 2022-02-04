@@ -84,18 +84,18 @@ class VeeamEasyConnect:
             print("Type not recognized; please use either basic, oauth, or mfa")
             return
 
-    def get_access_token(self):
+    def get_access_token(self) -> str:
         return self.res_json_oauth['access_token']
 
-    def get_access_token_with_bearer(self):
+    def get_access_token_with_bearer(self) -> str:
         token = self.res_json_oauth['access_token']
         return f"Bearer " + token
 
-    def get_mfa_token(self):
+    def get_mfa_token(self) -> None:
         print(self.res_json_oauth['mfa_token'])
 
     # load in data from the settings file - makes this easier to update
-    def get_settings(self):
+    def get_settings(self) -> None:
         with open("api_settings.json", "r") as settings_file:
             self.api_settings = json.load(settings_file)
 
