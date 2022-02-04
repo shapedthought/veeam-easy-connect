@@ -16,7 +16,7 @@ def main():
     username = "YOUR_USERNAME"
     password = getpass.getpass("Enter Password: ")
 
-    vec = VeeamEasyConnect(username, password)
+    vec = VeeamEasyConnect(username, password, False) # insecure
 
     vec.vbr().login(address)
 
