@@ -16,7 +16,7 @@ def main():
 
     vec.oauth_login(address, "vbr")
 
-    token_data = vec.get_json_data("oauth")
+    token_data = vec.get_access_token()
 
     print(token_data)
 

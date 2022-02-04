@@ -22,7 +22,7 @@ def main():
 
     vec.mfa_token_login(your_code) # Will print OK if successful
 
-    token_data = vec.get_json_data("oauth")
+    token_data = vec.get_access_token()
 
     print(token_data)
 
