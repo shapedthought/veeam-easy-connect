@@ -70,7 +70,7 @@ class VeeamEasyConnect:
         elif auth_type == "oauth":
             data = self.res_json_oauth
         else:
-            print("Type not recognized; please use basic, oauth, or mfa")
+            print("Type not recognized; please use basic, or oauth")
             return
         with open(f"{file_name}.json", "w") as token_file:
             json.dump(data, token_file)
