@@ -62,7 +62,7 @@ OAuth:
 
     address = "192.168.0.123"
 
-    # specify the API being used in second argument - "aws", "azure", "gcp", "o365"
+    # specify the API being used in second argument - "aws", "azure", "gcp", "o365", and "vbr"
     vec.oauth(address, "aws")
 
 ## MFA Authentication
