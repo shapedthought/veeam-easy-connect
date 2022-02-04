@@ -30,6 +30,7 @@ class VeeamEasyConnect:
         self.response.raise_for_status()
         if self.response.status_code == 200:
             print("OK")
+        self.basic_id = self.response.headers["X-RestSvcSessionId"]
         self.res_json_basic = self.response.json()
 
     def oauth_login(self, address: str, api_type: str) -> None:
@@ -69,7 +70,7 @@ class VeeamEasyConnect:
         file_name = file_name.split(".")[0] if "." in file_name else file_name
 
         if auth_type == "basic":
-            data = self.res_json_basic
+            data = self.response.headers
         elif auth_type == "oauth":
             data = self.res_json_oauth
         else:
@@ -78,17 +79,23 @@ class VeeamEasyConnect:
         with open(f"{file_name}.json", "w") as token_file:
             json.dump(data, token_file)
 
-    def get_json_data(self, json_type: str) -> dict:
+    def get_body_data(self, json_type: str) -> dict:
         if json_type == "basic":
             return self.res_json_basic
         elif json_type == "oauth":
             return self.res_json_oauth
         else:
-            print("Type not recognized; please use either basic, oauth, or mfa")
+            print("Type not recognized; please use either basic or oauth")
             return
 
-    def get_access_token(self) -> str:
-        return self.res_json_oauth['access_token']
+    def get_header_data(self) -> dict:
+        return self.response.headers
+
+    def get_access_token(self, token_type="oauth") -> str:
+        if token_type == "basic":
+            return self.basic_id
+        else: 
+            return self.res_json_oauth['access_token']
 
     def get_access_token_with_bearer(self) -> str:
         token = self.res_json_oauth['access_token']

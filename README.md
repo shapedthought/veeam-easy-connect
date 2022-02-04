@@ -56,7 +56,8 @@ Next you need to create an instance of the object with your username and passwor
 Basic Auth (Enterprise Manager):
 
     address = "192.168.0.123"
-    vec.basic_auth(address)
+    vec.basic_auth(address) 
+    token = vec.get_access_token("basic") # add basic as second argument, not needed for oauth
 
 OAuth:
 
@@ -64,6 +65,7 @@ OAuth:
 
     # specify the API being used in second argument - "aws", "azure", "gcp", "o365", and "vbr"
     vec.oauth(address, "aws")
+    token = vec.get_access_token()
 
 ## MFA Authentication
 
@@ -75,27 +77,19 @@ AWS and Azure only. This still is being tested, please create issue if you find 
 
     res_code = input("Enter code: ")
     vec.mfa_login(res_code) # string
+    token = vec.get_access_token()
+    or 
+    token = vec.get_access_token_with_bearer() # adds the "Bearer " to the token
 
 This will grab the mfa_token from the oauth response and combine it in the code you enter into the correct body.
 
 If Authorization was successful in all cases you will see an "OK" printed.
-
-You can get the json responses by calling:
-
-    json_data = vec.get_json("basic") 
-    json_data = vec.get_json("oauth")
 
 As you will likely need to save the token for later use a convenience method has been added:
 
     vec.save_data("oauth", "tokendata")
 
 The first parameter is type of token data ("basic" or "oauth"), and the second is the name of the file (no extension needed). 
-
-You can also save the access_token to a variable in the same script by calling:
-
-    access_token = vec.get_access_token() # just the token
-    or
-    access_token = vec.get_access_token_with_bearer() # adds the "Bearer " to the token
 
 ## Examples
 

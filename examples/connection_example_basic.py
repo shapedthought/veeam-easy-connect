@@ -16,7 +16,7 @@ def main():
 
     vec.basic_auth(address)
 
-    token_data = vec.get_json_data("basic")
+    token_data = vec.get_access_token("basic")
 
     print(token_data)
 
