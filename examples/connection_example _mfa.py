@@ -26,7 +26,7 @@ def main():
 
     print(token_data)
 
-    vec.save_data("oauth", "tokendata")
+    vec.save_data("tokendata")
 
 if __name__ == "__main__":
     main()
