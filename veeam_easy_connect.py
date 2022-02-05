@@ -71,7 +71,7 @@ class VeeamEasyConnect:
             print("OK")
         self.res_json_oauth = self.response.json()        
 
-    def save_data(self, file_name: str) -> None:
+    def save_token(self, file_name: str) -> None:
         # Added a check in case extension was included
         file_name = file_name.split(".")[0] if "." in file_name else file_name
 

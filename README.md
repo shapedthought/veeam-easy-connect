@@ -127,7 +127,7 @@ This will grab the mfa_token from the oauth response and combine it in the code 
 
 To save the access token data to a JSON file use:
 
-    vec.save_data("file_name")
+    vec.save_token("file_name")
 
 ## Examples
 

@@ -26,7 +26,7 @@ def main():
 
     print(token_data)
 
-    vec.save_data("token_data")
+    vec.save_token("token_data")
 
     vec.save_request_header("request_header")
 
