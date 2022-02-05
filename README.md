@@ -3,7 +3,7 @@
 
 If you find any bugs please raise an issue
 
-Veeam Easy Connect is a Python module that makes it easier to get going with both the Veeam APIs.
+Veeam Easy Connect is a Python module that makes it easier to get going with Veeam APIs.
 
 This module provides an easy way to get Authorized, and get the access token so you can get on with making useful requests.
 
