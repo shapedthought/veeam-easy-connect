@@ -105,7 +105,8 @@ class VeeamEasyConnect:
             }
         else:
             headers = self.api_settings[self.api_type]['headers']
-            headers.pop('Content-type')
+            if "Content-type" in headers.keys():
+                headers.pop('Content-type')
             bearer_string = 'Bearer ' + self.res_json_oauth['access_token']
             headers['Authorization'] = bearer_string
         return headers
