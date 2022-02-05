@@ -8,9 +8,10 @@ and then save it to a json file for future use.
 """
 
 def main():
-    username = "YOUR_USERNAME"
+    print("This script will save the request header and token to JSON files")
+    username = input("Enter username: ")
     password = getpass.getpass("Enter password: ")
-    address = "YOUR_ADDRESS"
+    address = input("Enter address: ")
 
     vec = VeeamEasyConnect(username, password, False) # insecure
 
@@ -20,7 +21,9 @@ def main():
 
     print(token_data)
 
-    vec.save_data("tokendata")
+    vec.save_data("token_data")
+
+    vec.save_request_header("request_header")
 
 if __name__ == "__main__":
     main()

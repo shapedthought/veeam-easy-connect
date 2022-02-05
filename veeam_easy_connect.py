@@ -17,10 +17,11 @@ class VeeamEasyConnect:
             "accept": "application/json",
             "Content-type": "application/x-www-form-urlencoded"
             }
-        self.get_settings()
+        self.__get_settings()
         self.basic = False
+        self.api_type = ""
     
-    def em_login(self, address: str) -> None:
+    def __em_login(self, address: str) -> None:
         self.basic = True
         self.basic_headers = {
              "accept": "application/json",
@@ -34,10 +35,11 @@ class VeeamEasyConnect:
             print("OK")
         self.basic_id = self.response.headers["X-RestSvcSessionId"]
         self.res_json_basic = self.response.json()
+        self.reqest_header = self.get_request_header()
 
     def login(self, address: str) -> None:
         if self.basic:
-            self.em_login(address)
+            self.__em_login(address)
         else:
         # set up each login url endpoint and api version
             self.address = address
@@ -52,6 +54,7 @@ class VeeamEasyConnect:
             if self.response.status_code == 200:
                 print("OK")
             self.res_json_oauth = self.response.json()
+            self.reqest_header = self.get_request_header()
 
     def mfa_token_login(self, code: str) -> None:
         self.token = self.res_json_mfa_oauth['mfa_token']
@@ -66,8 +69,7 @@ class VeeamEasyConnect:
         self.response.raise_for_status()
         if self.response.status_code == 200:
             print("OK")
-        self.res_json_oauth = self.response.json()
-
+        self.res_json_oauth = self.response.json()        
 
     def save_data(self, file_name: str) -> None:
         # Added a check in case extension was included
@@ -95,6 +97,25 @@ class VeeamEasyConnect:
         else: 
             return self.res_json_oauth['access_token']
 
+    def get_request_header(self) -> dict:
+        if self.api_type == "ent_man":
+            headers = {
+                "accept": "application/json",
+                "X-RestSvcSessionId": self.basic_id
+            }
+        else:
+            headers = self.api_settings[self.api_type]['headers']
+            headers.pop('Content-type')
+            bearer_string = 'Bearer ' + self.res_json_oauth['access_token']
+            headers['Authorization'] = bearer_string
+        return headers
+    
+    def save_request_header(self, file_name: str) -> None:
+        file_name = file_name.split(".")[0] + ".json" if "." in file_name else file_name + ".json"
+        headers = self.get_request_header()
+        with open(file_name, "w") as headers_file:
+            json.dump(headers, headers_file)
+
     def get_access_token_with_bearer(self) -> str:
         if self.basic:
             return self.basic_id
@@ -106,32 +127,38 @@ class VeeamEasyConnect:
         print(self.res_json_oauth['mfa_token'])
 
     # load in data from the settings file - makes this easier to update
-    def get_settings(self) -> None:
+    def __get_settings(self) -> None:
         with open("api_settings.json", "r") as settings_file:
             self.api_settings = json.load(settings_file)
 
     def aws(self):
         self.update_settings("aws")
+        self.api_type = "aws"
         return self
 
     def gcp(self):
         self.update_settings("gcp")
+        self.api_type = "gcp"
         return self
 
     def azure(self):
         self.update_settings("azure")
+        self.api_type = "azure"
         return self
 
     def vbr(self):
         self.update_settings("vbr")
+        self.api_type = "vbr"
         return self
 
     def o365(self):
         self.update_settings("o365")
+        self.api_type = "o365"
         return self
 
     def ent_man(self):
         self.basic = True
+        self.api_type = "ent_man"
         return self
     # Update the URL and headers as needed
     def update_settings(self, api_type: str) -> None:
@@ -153,4 +180,23 @@ class VeeamEasyConnect:
         else:
             print("API type not found")
             return
+
+    def get(self, url: str) -> dict:
+        resp = requests.get(url, headers=self.reqest_header, verify=self.verify)
+        resp.raise_for_status()
+        if resp.status_code == 200:
+            print("OK")
+        return resp.json()
+
+    def post(self, url: str, data: dict) -> dict:
+        resp = requests.post(url, headers=self.reqest_header, data=data, verify=self.verify)
+        resp.raise_for_status()
+        print(resp.status_code)
+        return resp.json()
+
+    def put(self, url: str, data: dict) -> dict:
+        resp = requests.put(url, headers=self.reqest_header, data=data, verify=self.verify)
+        resp.raise_for_status()
+        print(resp.status_code)
+        return resp.json()
 

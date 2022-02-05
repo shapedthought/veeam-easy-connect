@@ -6,27 +6,19 @@ import pprint
 
 """
 Getting Repository Information from the Veeam API (OAuth)
-This script shows how to open and grab the data from the token file, then add it to the request header.
+This script shows how to open and grab the data from the header file and add it directly to the request.
 It then shows how to send the data to the API and how to handle the response, saving it to another JSON file.
 """
 
 def main():
-    address = "YOUR_ADDRESS"
+    address = input("Enter address: ")
 
-    with open("tokendata.json", "r") as token_data:
-        token_dict = json.load(token_data)
-
-    token = token_dict.get("access_token")
-
-    headers = {
-            "accept": "application/json",
-            "x-api-version": "1.0-rev1",
-            "Authorization": "Bearer " + token
-    }
+    with open("request_header.json", "r") as token_data:
+        header = json.load(token_data)
 
     url = f"https://{address}:9419/api/v1/backupInfrastructure/repositories"
 
-    res = requests.get(url, headers=headers, verify=False)
+    res = requests.get(url, headers=header, verify=False)
 
     res.raise_for_status()
 
