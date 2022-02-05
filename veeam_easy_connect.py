@@ -80,7 +80,7 @@ class VeeamEasyConnect:
         else:
             data = self.res_json_oauth
         with open(f"{file_name}.json", "w") as token_file:
-            json.dump(data, token_file)
+            json.dump(dict(data), token_file)
 
     def get_body_data(self) -> dict:
         if self.basic:
