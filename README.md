@@ -17,11 +17,17 @@ Password login should work on:
 * GCP
 * O365
 
-MFA Login AWS and Azure are new and still need testing - help here welcome. 
+### MFA
 
-GCP MFA is being worked on as different to the way AWS and Azure work.
+AWS and Azure MFA tested and working.
 
-SSO for AWS is not currently implemented, but being looked into.
+GCP still to be tested but should work.
+
+### AWS SSO
+
+SSO for AWS is in the module but still being worked on.
+
+### Items Not road mapped
 
 O365 Modern App-Only Authentication is intended for Tenant access so is very restricted so is not currently planned.
 
@@ -31,15 +37,15 @@ Authorization code access is not currently road mapped.
 
 ## Installation
 
-    pip install -r requirements.txt
+Install has now moved to Pypi!
 
-External Packages used:
+    pip install veeam_easy_connect
 
-* Requests
+## Update
+
+    pip install --upgrade veeam_easy_connect
 
 ## How to use
-
-There is a new api_settings file with all the variations on the headers and url paths loaded. I've done this to make it easier to update if the API or URLs change. If you are using a none-standard port you will need to update this file.
 
 Import the module via:
 
@@ -75,23 +81,21 @@ Then chain with the .login() command with the address
 
 ## MFA Authentication
 
-AWS and Azure only. 
-
-This still is being tested, please create issue if you find a bug.
+AWS and Azure currently (GCP soon)
     
     vec = VeeamEasyConnect(username, password)
 
     vec.aws().login(address) # or .azure()
 
-    vec.get_mfa_token() # this will print the token to use with the MFA
-
-    res_code = input("Enter code: ")
+    res_code = input("Enter MFA code: ")
 
     vec.mfa_login(res_code) # string, no need to set the api type again
 
 ## Request Methods
 
-You can send requests directly using vec methods which wrap the Request library and pulls in the correct headers automatically.
+You can send requests directly using vec methods which wrap the Request library and pulls in the correct headers automatically. 
+
+This can be useful for single use scripts or when using Jupyter Notebooks.
 
     address = f"https://192.168.0.123:9419/api/v1/backupInfrastructure/repositories"
 
@@ -101,7 +105,7 @@ You can send requests directly using vec methods which wrap the Request library 
 
     res_data = vec.put(address, body_data) -> dict
 
-All of these methods return a deserialised response. No delete method is available and is not planned.
+All of these methods return a deserialized response. No delete method is available and is not planned.
 
 ## Get Request Header
 
@@ -128,6 +132,34 @@ This will grab the mfa_token from the oauth response and combine it in the code 
 To save the access token data to a JSON file use:
 
     vec.save_token("file_name")
+
+## Update port
+
+To update the port you need to do the following:
+
+    vec.vbr()
+
+    vec.update_port("9420")
+
+    print(vec.get_port()) # check the port has changed
+
+    vec.login("address")
+
+## Update API Version
+
+    # set the API type
+    vec.vbr().update_api_version("1.0-rev3")
+    
+    # check
+    print(vec.get_api_version())
+
+Note that you cannot chain the api and port updates, you would need to do:
+
+    # set the API type
+    vec.vbr().update_api_version("1.0-rev3")
+
+    # Then update the port or visa-versa
+    vec.update_port("9420")
 
 ## Examples
 

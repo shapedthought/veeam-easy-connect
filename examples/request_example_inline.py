@@ -1,8 +1,4 @@
 import json
-import requests
-import urllib3
-urllib3.disable_warnings()
-import pprint
 import getpass
 from veeam_easy_connect import VeeamEasyConnect
 

@@ -1,4 +1,4 @@
-{
+api_settings = {
     "o365": {
         "headers": {
             "accept": "application/json",

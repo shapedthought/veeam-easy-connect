@@ -14,9 +14,7 @@ def main():
 
     vec = VeeamEasyConnect(username, password, False) # insecure
 
-    vec.aws().login(address) # 
-
-    vec.get_mfa_token() # This will print the mfa token
+    vec.aws().login(address) # or Azure
 
     your_code = input("Enter your code: ")
 

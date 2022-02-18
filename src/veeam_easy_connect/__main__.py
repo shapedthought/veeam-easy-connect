@@ -1,8 +1,11 @@
 import requests
 from requests.auth import HTTPBasicAuth
+from .api_settings import api_settings
 import urllib3
 urllib3.disable_warnings()
 import json
+import webbrowser
+import sys
 
 """
 Veeam Easy Connect
@@ -31,8 +34,7 @@ class VeeamEasyConnect:
         self.b_auth = HTTPBasicAuth(self.username, self.password)
         self.response = requests.post(self.basic_url, headers=self.basic_headers, auth=self.b_auth, verify=self.verify)
         self.response.raise_for_status()
-        if self.response.status_code == 201:
-            print("OK")
+        print("OK")
         self.basic_id = self.response.headers["X-RestSvcSessionId"]
         self.res_json_basic = self.response.json()
         self.reqest_header = self.get_request_header()
@@ -51,25 +53,28 @@ class VeeamEasyConnect:
                 }
             self.response = requests.post(self.oauth_url, data=self.oauth_data, headers=self.oauth_headers, verify=self.verify)
             self.response.raise_for_status()
-            if self.response.status_code == 200:
-                print("OK")
+            print("OK")
             self.res_json_oauth = self.response.json()
-            self.reqest_header = self.get_request_header()
+            if not "mfa_token" in self.res_json_oauth:
+                self.reqest_header = self.get_request_header()
+            else:
+                print(f"MFA Token in response - use 'mfa_token_login' to with access code to continue")
 
     def mfa_token_login(self, code: str) -> None:
-        self.token = self.res_json_mfa_oauth['mfa_token']
+        self.token = self.res_json_oauth['mfa_token']
         self.mfa_url = f"https://{self.address}{self.url_end}"
         self.mfa_data = {
-            "grant_type": "mfa",
+            "grant_type": "Mfa",
             "mfa_token":  self.token,
             "mfa_code": code
         }
         # I don't think I need to change the Content-Type on this request- not clear
-        self.mfa_response = requests.post(self.mfa_url, data=self.oauth_data, headers=self.oauth_headers, verify=self.verify)
+
+        self.response = requests.post(self.mfa_url, data=self.mfa_data, headers=self.oauth_headers, verify=self.verify)
         self.response.raise_for_status()
-        if self.response.status_code == 200:
-            print("OK")
-        self.res_json_oauth = self.response.json()        
+        print("OK")
+        self.res_json_oauth = self.response.json()
+        self.reqest_header = self.get_request_header()
 
     def save_token(self, file_name: str) -> None:
         # Added a check in case extension was included
@@ -98,14 +103,15 @@ class VeeamEasyConnect:
             return self.res_json_oauth['access_token']
 
     def get_request_header(self) -> dict:
-        if self.api_type == "ent_man":
+        if self.basic:
             headers = {
                 "accept": "application/json",
                 "X-RestSvcSessionId": self.basic_id
             }
         else:
             headers = self.api_settings[self.api_type]['headers']
-            if "Content-type" in headers:
+            # need to add application/json here?
+            if "application/x-www-form-urlencoded" in headers.values():
                 headers.pop('Content-type')
             bearer_string = 'Bearer ' + self.res_json_oauth['access_token']
             headers['Authorization'] = bearer_string
@@ -129,8 +135,9 @@ class VeeamEasyConnect:
 
     # load in data from the settings file - makes this easier to update
     def __get_settings(self) -> None:
-        with open("api_settings.json", "r") as settings_file:
-            self.api_settings = json.load(settings_file)
+        self.api_settings = api_settings
+        # with open("api_settings.json", "r") as settings_file:
+        #     self.api_settings = json.load(settings_file)
 
     def aws(self):
         self.update_settings("aws")
@@ -185,19 +192,93 @@ class VeeamEasyConnect:
     def get(self, url: str) -> dict:
         resp = requests.get(url, headers=self.reqest_header, verify=self.verify)
         resp.raise_for_status()
-        if resp.status_code == 200:
-            print("OK")
+        print("OK")
         return resp.json()
 
     def post(self, url: str, data: dict) -> dict:
         resp = requests.post(url, headers=self.reqest_header, data=data, verify=self.verify)
         resp.raise_for_status()
-        print(resp.status_code)
+        print("OK")
         return resp.json()
 
     def put(self, url: str, data: dict) -> dict:
         resp = requests.put(url, headers=self.reqest_header, data=data, verify=self.verify)
         resp.raise_for_status()
-        print(resp.status_code)
+        print("OK")
         return resp.json()
+
+    def update_port(self, port_num: str) -> None:
+        end_bit = self.url_end.split("/", maxsplit=1)[1]
+        self.url_end = f":{port_num}/{end_bit}"
+
+    def get_port(self) -> str:
+        return self.url_end.split("/", maxsplit=1)[0][1:]
+
+    def update_api_version(self, api_version: str) -> None:
+        if not self.basic:
+            self.oauth_headers['x-api-version'] = api_version
+
+    def get_api_version(self) -> None:
+        if not self.basic:
+            return self.oauth_headers['x-api-version']
+        else:
+            return "latest"
+
+    # being worked on
+    def __sso_login(self, address: str, sso_username: str, sso_address: str):
+        # set up for first request
+
+        # remove the /token from the url_end brought in from config file
+        sso_url = "/".join(self.url_end.split("/")[0:3]) + "/identityProvider/signOnUrl?userName="
+
+        # create the full url
+        url = f"https://{address}:{sso_url}{sso_username}"
+        api_version = self.oauth_headers.get("x-api-version")
+        headers = { "x-api-version":  api_version }
+
+        # send first request
+        data = requests.get(url, headers=headers, verify=self.verify)
+        data.raise_for_status()
+        data_json = data.json()
+
+        # confirm SSO
+        sso_url = data_json.get("redirectToUrl")
+        print("opening webpage")
+        webbrowser.open(sso_url)
+        confirm = input("continue? y/n")
+        if confirm == "n":
+            sys.exit()
+
+        # second request set up
+        data = {
+            "username" : self.username,
+            "password": self.password
+            }
+        headers['Content-Type'] = "x-www-form-urlencoded"
+
+        # get the code from the response to add to the new url
+        saml_code = sso_url.split("=")[1]
+        saml_url = f"https://{sso_address}//adfs/ls/?SAMLRequest={saml_code}"
+
+        # send third request
+  
+        saml_res = requests.post(saml_url, data=data, headers=headers, verify=self.verify)
+        saml_res.raise_for_status()
+
+        # third request set up
+        token = saml_res.json().get("value")
+
+        login_url = f"https://{sso_address}:11005/api/v1/identityProvider/token"
+ 
+        headers.pop("Content-Type")
+        token_data = {"SamlResponse": token}
+
+        # send third request
+        self.respose = requests.post(login_url, headers=headers, data=token_data, verify=self.verify)
+        self.response.raise_for_status()
+
+        # if all has gone well, set the data as normal
+        self.res_json_oauth = self.response.json()
+        self.reqest_header = self.get_request_header()
+        
 
