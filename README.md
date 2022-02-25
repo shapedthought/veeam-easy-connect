@@ -107,6 +107,23 @@ This can be useful for single use scripts or when using Jupyter Notebooks.
 
 All of these methods return a deserialized response. No delete method is available and is not planned.
 
+## Short Request URLs
+
+To save some effort you can specify just the last part of the URL without the version number on APIs that
+use it for example:
+
+"https://192.168.0.123:9419/api/v1/backupInfrastructure/repositories"
+
+Can be shortened to:
+
+"backupInfrastructure/repositories"
+
+    address = "backupInfrastructure/repositories"
+    res_data = vec.get(address, False)
+    # or
+    res_data = vec.get(address, full=False)
+
+You need to pass "False" as the last or named parameter, which stands for "not full url".
 ## Get Request Header
 
 You can get the complete header by calling:

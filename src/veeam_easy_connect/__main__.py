@@ -26,13 +26,14 @@ class VeeamEasyConnect:
         self.basic = False
         self.api_type = ""
 
-    def __em_login(self, address: str) -> None:
+    def __em_login(self) -> None:
         self.basic = True
         self.basic_headers = {
             "accept": "application/json",
         }
 
-        self.basic_url = f"https://{address}:9398/api/sessionMngr/?v=latest"
+        # self.basic_url = f"https://{address}:9398/api/sessionMngr/?v=latest"
+        self.basic_url = f"https://{self.address}{self.url_end}"
         self.b_auth = HTTPBasicAuth(self.username, self.password)
         self.response = requests.post(
             self.basic_url, headers=self.basic_headers, auth=self.b_auth, verify=self.verify)
@@ -43,7 +44,8 @@ class VeeamEasyConnect:
 
     def login(self, address: str) -> None:
         if self.basic:
-            self.__em_login(address)
+            self.address = address
+            self.__em_login()
         else:
             # set up each login url endpoint and api version
             self.address = address
@@ -168,43 +170,77 @@ class VeeamEasyConnect:
 
     def ent_man(self):
         self.basic = True
-        self.api_type = "ent_man"
+        self.update_settings("ent_man")
+        # self.api_type = "ent_man"
         return self
     # Update the URL and headers as needed
 
     def update_settings(self, api_type: str) -> None:
         if api_type == "o365":
             self.url_end = self.api_settings['o365']['url']
+            self.api_version = self.api_settings['o365']['api_version']
             # No API version specified in the documentation
         elif api_type == "aws":
             self.url_end = self.api_settings['aws']['url']
             self.oauth_headers = self.api_settings['aws']['headers']
+            self.api_version = self.api_settings['aws']['api_version']
         elif api_type == "vbr":
             self.url_end = self.api_settings['vbr']['url']
             self.oauth_headers = self.api_settings['vbr']['headers']
+            self.api_version = self.api_settings['vbr']['api_version']
         elif api_type == "azure":
             self.url_end = self.api_settings['azure']['url']
             self.oauth_headers = self.api_settings['azure']['headers']
+            self.api_version = self.api_settings['azure']['api_version']
         elif api_type == "gcp":
             self.url_end = self.api_settings['gcp']['url']
             self.oauth_headers = self.api_settings['gcp']['headers']
+            self.api_version = self.api_settings['gcp']['api_version']
+        elif api_type == "ent_man":
+            self.url_end = self.api_settings['ent_man']['url']
+            self.api_version = "None"
         else:
             print("API type not found")
             return
 
-    def get(self, url: str) -> dict:
+    def _create_url(self, request: str, full: bool):
+        if not full:
+            if request.startswith("/"):
+                request = request[1:]
+            if self.basic:
+                # ":9398/api/sessionMngr/?v=latest"
+                url_middle = "/".join(self.url_end.split("/")[:-2]) + "/"
+                # the beginning / has been removed from the request variable
+                # No api_version needs to be added in this case
+                return f"https://{self.address}{url_middle}{request}"
+            else:
+                #":11005/api/v1/token"
+                # check if oauth is in the url_end as that means we need to go back 
+                # two splits unlike the others that need 1
+                split_qty = -2 if "oauth" in self.url_end else -1
+                url_middle = "/".join(self.url_end.split("/")[:split_qty]) + "/"
+                # the beginning / has been removed from the request variable
+                # But the api_version doesn't have the trailing / so needs to be added
+                return f"https://{self.address}{url_middle}{self.api_version}/{request}"
+        else:
+            return request
+
+    def get(self, url: str, full=True) -> dict:
+        url = self._create_url(url, full)
         resp = requests.get(
             url, headers=self.reqest_header, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
-    def post(self, url: str, data: dict) -> dict:
+    def post(self, url: str, data: dict, full=True) -> dict:
+        url = self._create_url(url, full)
         resp = requests.post(url, headers=self.reqest_header,
                              data=data, verify=self.verify)
         resp.raise_for_status()
         return resp.json()
 
-    def put(self, url: str, data: dict) -> dict:
+    def put(self, url: str, data: dict, full=True) -> dict:
+        url = self._create_url(url, full)
         resp = requests.put(url, headers=self.reqest_header,
                             data=data, verify=self.verify)
         resp.raise_for_status()
