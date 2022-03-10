@@ -7,6 +7,11 @@ Veeam Easy Connect is a Python module that makes it easier to get going with Vee
 
 This module provides an easy way to get Authorized, and get the access token so you can get on with making useful requests.
 
+### Change log
+
+* Bumped the Veeam Backup for Microsoft 365 to v6
+* Fixed issue with API version update command
+
 **Note: I have updated this module so make it more generic over all Veeam Products. This means breaking changes to the way it was shown in the YouTube series.**
 
 Password login should work on:
@@ -134,7 +139,7 @@ The request will include the correct API version for the type of API you are usi
 
 To save the headers to a JSON file:
 
-    vec.save_headers("file_name")
+    vec.save_request_header("file_name")
 
 ## Get Access Token
 

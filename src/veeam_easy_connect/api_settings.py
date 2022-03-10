@@ -4,8 +4,8 @@ api_settings = {
             "accept": "application/json",
             "Content-type": "application/x-www-form-urlencoded"
         },
-        "url": ":4443/v5/Token",
-        "api_version": "v5"
+        "url": ":4443/v6/Token",
+        "api_version": "v6"
     },
     "aws": {
         "headers": {

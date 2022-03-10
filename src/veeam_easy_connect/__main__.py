@@ -256,6 +256,7 @@ class VeeamEasyConnect:
     def update_api_version(self, api_version: str) -> None:
         if not self.basic:
             self.oauth_headers['x-api-version'] = api_version
+            self.api_version = api_version
 
     def get_api_version(self) -> None:
         if not self.basic:
