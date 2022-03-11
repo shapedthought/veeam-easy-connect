@@ -260,7 +260,10 @@ class VeeamEasyConnect:
 
     def get_api_version(self) -> None:
         if not self.basic:
-            return self.oauth_headers['x-api-version']
+            if len(self.url_end) > 0:
+                return self.api_version
+            else:
+                raise Exception("The API type needs to be set")
         else:
             return "latest"
 
