@@ -6,6 +6,7 @@ urllib3.disable_warnings()
 import json
 import webbrowser
 import sys
+import re
 
 """
 Veeam Easy Connect
@@ -173,7 +174,14 @@ class VeeamEasyConnect:
         self.update_settings("ent_man")
         # self.api_type = "ent_man"
         return self
-    # Update the URL and headers as needed
+    
+    # new method that allows you to create your own API endpoint
+    def custom(self, settings: dict):
+        self.basic = False
+        self.url_end = settings['url']
+        self.oauth_headers = settings['header']
+        self.api_version = settings['api_version']
+        return self
 
     def update_settings(self, api_type: str) -> None:
         if api_type == "o365":
@@ -199,6 +207,10 @@ class VeeamEasyConnect:
         elif api_type == "ent_man":
             self.url_end = self.api_settings['ent_man']['url']
             self.api_version = "None"
+        elif api_type == "vone":
+            self.url_end = self.api_settings['vone']['url']
+            self.oauth_headers = self.api_settings['vone']['headers']
+            self.api_version = self.api_settings['vone']['api_version']
         else:
             print("API type not found")
             return
@@ -217,8 +229,9 @@ class VeeamEasyConnect:
                 #":11005/api/v1/token"
                 # check if oauth is in the url_end as that means we need to go back 
                 # two splits unlike the others that need 1
-                split_qty = -2 if "oauth" in self.url_end else -1
-                url_middle = "/".join(self.url_end.split("/")[:split_qty]) + "/"
+                # split_qty = -2 if "oauth" in self.url_end else -1
+                url_middle = re.split('oauth|v[0-9]', self.url_end)[0]
+                # url_middle = "/".join(self.url_end.split("/")[:split_qty]) + "/"
                 # the beginning / has been removed from the request variable
                 # But the api_version doesn't have the trailing / so needs to be added
                 return f"https://{self.address}{url_middle}{self.api_version}/{request}"

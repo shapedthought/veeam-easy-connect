@@ -44,5 +44,14 @@ api_settings = {
         },
         "url": ":13140/api/v1/token",
         "api_version": "v1"
-    }
+    },
+    "vone": {
+        "headers": {
+            "accept": "application/json",
+            "Content-type": "application/x-www-form-urlencoded",
+            "x-api-version": "1.0-rev2"
+        },
+        "url": ":1239/api/token",
+        "api_version": "v2"
+    },
 }

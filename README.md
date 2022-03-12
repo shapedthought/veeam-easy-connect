@@ -9,6 +9,7 @@ This module provides an easy way to get Authorized, and get the access token so 
 
 ### Change log
 
+* Added Veeam ONE API support
 * Bumped the Veeam Backup for Microsoft 365 to v6
 * Fixed issue with API version update command
 
@@ -21,6 +22,7 @@ Password login should work on:
 * Azure
 * GCP
 * O365
+* VONE
 
 ### MFA
 
@@ -75,6 +77,7 @@ Next call the api type which is either:
 * .gcp
 * .vbr
 * .o365
+* .vone
 
 Then chain with the .login() command with the address
 
@@ -84,6 +87,29 @@ Then chain with the .login() command with the address
 
     token = vec.get_access_token()
 
+### Custom api type
+
+To create a custom API type (oauth only) do the following.
+
+Create a dictionary with the following parameters, obviously modifying what you need to:
+
+    settings = {
+                "headers": {
+                    "accept": "application/json",
+                    "Content-type": "application/x-www-form-urlencoded",
+                    "x-api-version": "1.0-rev2"
+                },
+                "url": ":1239/api/token",
+                "api_version": "v1"
+            }
+
+The url is the token endpoint with the port included, and the app version has to be the same one that is used when making a regular http request e.g. v1/2/3
+
+Then call the following function with the settings as the parameter.
+
+    vec.custom(settings)
+
+You can then carry on like normal.
 ## MFA Authentication
 
 AWS and Azure currently (GCP soon)
@@ -110,7 +136,7 @@ This can be useful for single use scripts or when using Jupyter Notebooks.
 
     res_data = vec.put(address, body_data) -> dict
 
-All of these methods return a deserialized response. No delete method is available and is not planned.
+All of these methods return a deserialized response. 
 
 ## Short Request URLs
 
