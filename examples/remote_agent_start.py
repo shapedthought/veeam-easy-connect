@@ -121,7 +121,7 @@ def main():
     error_count = 0
     clear_screen()
     # loop to monitor the progress of the job
-    print("Monitoring job, waiting 30 seconds between checks")
+    print(f"Monitoring job, waiting {SLEEP_TIME} seconds between checks")
     while True:
         
         sess_res = vec.get(f"{sess_url}?format=Entity")
